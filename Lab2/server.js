@@ -15,7 +15,7 @@ const patientList = [
 //index.html route
 
 router.get("/", (req, res, next) => {
-    res.sendFile(__dirname + "/Lab1_new.html");
+    res.sendFile(__dirname + "/Lab2.html");
  });
 
 // GET /patients - list of patients names( firstname, lastname)
