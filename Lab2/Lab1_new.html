@@ -1,0 +1,222 @@
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <title>App</title>
+  <script>
+    
+  </script>
+</head>
+
+<body>
+  <style>
+    h1 {
+      text-align: center;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #my-table {
+      border: 1px solid black;
+    }
+  </style>
+
+  <h1>Università degli Studi di Padova</h1><br>
+  <h2>Secure Digital Healthcare<br>
+    Lab 2<br><br>
+    Urbani Tommaso</h2>
+
+  <form onsubmit="event.preventDefault(); addPatient(); showPatients();">
+    <table>
+      <tr>
+        <td><label for="first-name">First Name:</label></td>
+        <td><input type="text" id="first-name" name="first-name" required placeholder="Enter your first name"><br></td>
+      </tr>
+      <tr>
+        <td><label for="last-name">Last Name:</label></td>
+        <td><input type="text" id="last-name" name="last-name" required placeholder="Enter your last name"><br></td>
+      </tr>
+      <tr>
+        <td><label for="email">Email:</label></td>
+        <td><input type="email" id="email" name="email" required placeholder="Enter your email"><br></td>
+      </tr>
+      <tr>
+        <td><label for="password">Password:</label></td>
+        <td><input type="password" id="password" name="password" required placeholder="Enter your password"><br></td>
+      </tr>
+    </table>
+    <button type="submit">Submit</button>
+
+  </form>
+
+  <script>
+    function validateForm() {
+      // Get form fields
+      var firstName = document.getElementById("first-name").value;
+      var lastName = document.getElementById("last-name").value;
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
+      
+      // Check if fields are empty
+      if (firstName == "" || lastName == "" || email == "" || password == "" ) {
+        alert("Please fill out all fields.");
+        return false;
+      }
+
+      // Check if email address is valid
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        alert("Please enter a valid email address.");
+        return false;
+      }
+
+      // If all checks pass, allow form submission
+      return true;
+    }
+  </script>
+  <script>
+    document.querySelector('form').addEventListener('submit', function (event) {
+      event.preventDefault(); // prevent form submission
+      if (validateForm()) {
+        addData();
+      }
+    });
+  </script>
+  <table id="my-table" class="center">
+    <thead>
+      <tr>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <br>
+  <button type="button" onclick="showPatients()">Show List</button>
+
+  <script>
+    function addPatient() {
+  // Get form fields
+  var firstName = document.getElementById("first-name").value;
+  var lastName = document.getElementById("last-name").value;
+  var email = document.getElementById("email").value;
+  var password = document.getElementById("password").value;
+
+
+  // Send POST request to server
+  axios.post('/api/patients', {
+    firstname: firstName,
+    lastname: lastName,
+    email: email,
+    password: password,
+  })
+  .then(function (response) {
+    // Handle success
+    console.log(response);
+  })
+  .catch(function (error) {
+    // Handle error
+    console.log(error);
+  });
+}
+
+
+  function showPatients() {
+    axios.get('/api/patients')
+    .then(function (response) {
+      var patients = response.data;
+      var tableBody = document.getElementById("my-table").getElementsByTagName("tbody")[0];
+      tableBody.innerHTML = ""; // clear existing rows
+      for (var i = 0; i < patients.length; i++) {
+        var newRow = tableBody.insertRow();
+        var first_nameCell = newRow.insertCell(0);
+        var last_nameCell = newRow.insertCell(1);
+        var emailCell = newRow.insertCell(2);
+        var passwordCell = newRow.insertCell(3);
+        var deleteButtonCell = newRow.insertCell(4);
+        first_nameCell.innerHTML = patients[i].firstname;
+        last_nameCell.innerHTML = patients[i].lastname;
+        emailCell.innerHTML = patients[i].email;
+        passwordCell.innerHTML = patients[i].password;
+        var deleteButton = document.createElement("button");
+        deleteButton.innerHTML = "Delete";
+        deleteButton.onclick = function() {
+          deletePatient(this); // pass the button element to deletePatient function
+        };
+        deleteButtonCell.appendChild(deleteButton);
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  function deletePatient(button) {
+      // Get the parent row of the button element
+      var row = button.parentNode.parentNode;
+
+      // Get the email address of the patient to delete
+      var email = row.cells[2].innerHTML;
+
+      // Send DELETE request to server
+      axios.delete('/api/patients', { data: { email: email } })
+      .then(function (response) {
+      // Handle success
+      console.log(response);
+      // Remove the row from the table
+      var tableBody = document.getElementById("my-table").getElementsByTagName("tbody")[0];
+          tableBody.removeChild(row);
+})
+.catch(function (error) {
+// Handle error
+console.log(error);
+});
+}
+
+  
+
+    function addData() {
+      // Get form input values
+      var first_name = document.getElementById("first-name").value;
+      var last_name = document.getElementById("last-name").value;
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
+      
+
+      // Get table body element
+      var tableBody = document.getElementById("my-table").getElementsByTagName("tbody")[0];
+
+      // Create new table row and cells for data
+      var newRow = tableBody.insertRow();
+      var first_nameCell = newRow.insertCell(0);
+      var last_nameCell = newRow.insertCell(1);
+      var emailCell = newRow.insertCell(2);
+      var passwordCell = newRow.insertCell(3);
+
+      // Set cell values to form input values
+      first_nameCell.innerHTML = first_name;
+      last_nameCell.innerHTML = last_name;
+      emailCell.innerHTML = email;
+      passwordCell.innerHTML = password;
+
+      // Clear form input fields
+      document.getElementById("first-name").value = "";
+      document.getElementById("last-name").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("password").value = "";
+
+      // Prevent form submission
+      return false;
+    }
+  </script>
+</body>
+
+</html>
