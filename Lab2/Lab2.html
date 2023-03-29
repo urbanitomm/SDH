@@ -25,6 +25,21 @@
     #my-table {
       border: 1px solid black;
     }
+
+    #show-button {
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+      width: 50%;
+      transition-duration: 0.4s;
+      font-size: 16px;
+    }
+
+    #show-button:hover {
+      background-color: #4CAF50;
+      color: white;
+    }
+
   </style>
 
   <h1>Università degli Studi di Padova</h1><br>
@@ -32,7 +47,7 @@
     Lab 2<br><br>
     Urbani Tommaso</h2>
 
-  <form onsubmit="event.preventDefault(); addPatient(); showPatients();">
+  <form > <!--onsubmit="event.preventDefault(); addPatient(); showPatients();"-->
     <table>
       <tr>
         <td><label for="first-name">First Name:</label></td>
@@ -87,6 +102,8 @@
       }
     });
   </script>
+  <button id="show-button" type="button" onclick="showPatients()">Show List</button>
+  <br><br>
   <table id="my-table" class="center">
     <thead>
       <tr>
@@ -99,8 +116,7 @@
     </thead>
     <tbody></tbody>
   </table>
-  <br>
-  <button type="button" onclick="showPatients()">Show List</button>
+  
 
   <script>
     function addPatient() {
@@ -142,11 +158,18 @@
         var emailCell = newRow.insertCell(2);
         var passwordCell = newRow.insertCell(3);
         var deleteButtonCell = newRow.insertCell(4);
+        var editButtonCell = newRow.insertCell(5);
         first_nameCell.innerHTML = patients[i].firstname;
         last_nameCell.innerHTML = patients[i].lastname;
         emailCell.innerHTML = patients[i].email;
         passwordCell.innerHTML = patients[i].password;
         var deleteButton = document.createElement("button");
+        var editButton = document.createElement("button");
+        editButton.innerHTML = "Edit";
+        editButton.onclick = function() {
+          editPatient(this); // pass the button element to editPatient function
+        };
+        editButtonCell.appendChild(editButton);
         deleteButton.innerHTML = "Delete";
         deleteButton.onclick = function() {
           deletePatient(this); // pass the button element to deletePatient function
@@ -179,6 +202,59 @@
 // Handle error
 console.log(error);
 });
+}
+
+function editPatient(btn) {
+  var row = btn.parentNode.parentNode;
+  var cells = row.getElementsByTagName("td");
+  for (var i = 0; i < cells.length - 1; i++) {
+    var input = document.createElement("input");
+    input.type = "text";
+    input.value = cells[i].innerHTML;
+    cells[i].innerHTML = "";
+    cells[i].appendChild(input);
+  }
+  var saveBtn = document.createElement("button");
+  saveBtn.innerHTML = "Save";
+  saveBtn.onclick = function() { saveRow(row); };
+  var cancelBtn = document.createElement("button");
+  cancelBtn.innerHTML = "Cancel";
+  cancelBtn.onclick = function() { cancelEditRow(row); };
+  var td = document.createElement("td");
+  td.appendChild(saveBtn);
+  td.appendChild(cancelBtn);
+  row.replaceChild(td, btn.parentNode);
+}
+
+function saveRow(row) {
+  var cells = row.getElementsByTagName("td");
+  for (var i = 0; i < cells.length - 1; i++) {
+    var input = cells[i].getElementsByTagName("input")[0];
+    cells[i].innerHTML = input.value;
+  }
+  var editBtn = document.createElement("button");
+  editBtn.innerHTML = "Edit";
+  editBtn.onclick = function() { editRow(this); };
+  var deleteBtn = row.getElementsByTagName("button")[0];
+  var td = document.createElement("td");
+  td.appendChild(editBtn);
+  td.appendChild(deleteBtn);
+  row.replaceChild(td, cells[cells.length - 1]);
+}
+
+function cancelEditRow(row) {
+  var cells = row.getElementsByTagName("td");
+  for (var i = 0; i < cells.length - 1; i++) {
+    cells[i].innerHTML = cells[i].getElementsByTagName("input")[0].defaultValue;
+  }
+  var editBtn = document.createElement("button");
+  editBtn.innerHTML = "Edit";
+  editBtn.onclick = function() { editRow(this); };
+  var deleteBtn = row.getElementsByTagName("button")[0];
+  var td = document.createElement("td");
+  td.appendChild(editBtn);
+  td.appendChild(deleteBtn);
+  row.replaceChild(td, cells[cells.length - 1]);
 }
 
   
